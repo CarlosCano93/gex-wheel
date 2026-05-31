@@ -28,19 +28,21 @@ st.set_page_config(page_title="GEX Wheel Dashboard", page_icon="📊",
 
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;800&display=swap');
+  /* Importamos Inter (títulos) y Roboto Mono (datos/números) */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap');
 
   html, body, [class*="css"] {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Roboto Mono', monospace;
     background-color: #0a0d14;
     color: #e2e8f0;
   }
   .main { background-color: #0a0d14; }
-  /* Más respiración en el contenedor principal */
   .block-container { padding-top: 1.5rem; padding-left: 2rem; padding-right: 2rem; }
-  h1, h2, h3 { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; color: #f1f5f9; }
+  
+  /* Títulos usando Inter */
+  h1, h2, h3 { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; color: #f1f5f9; }
 
-  /* Metric cards — texto más claro */
+  /* Metric cards */
   .metric-card {
     background: linear-gradient(135deg, #111827 0%, #1a2235 100%);
     border: 1px solid #2d3f55;
@@ -49,23 +51,24 @@ st.markdown("""
     margin-bottom: 0.5rem;
   }
   .metric-card .label {
-    font-size: 0.68rem;
+    font-size: 0.70rem;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
+    font-family: 'Inter', sans-serif;
   }
   .metric-card .value {
     font-size: 1.45rem;
     font-weight: 700;
     color: #f1f5f9;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', sans-serif;
     margin-top: 0.15rem;
   }
   .metric-card .delta { font-size: 0.78rem; margin-top: 0.15rem; }
   .pos { color: #4ade80; }
   .neg { color: #f87171; }
 
-  /* Precio destacado — card más grande */
+  /* Precio destacado */
   .price-card {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
     border: 1px solid #3b82f6;
@@ -73,8 +76,8 @@ st.markdown("""
     padding: 0.9rem 1.2rem;
     margin-bottom: 0.5rem;
   }
-  .price-card .label { font-size: 0.68rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.08em; }
-  .price-card .value { font-size: 1.7rem; font-weight: 800; color: #e0f2fe; font-family: 'Syne', sans-serif; margin-top: 0.1rem; }
+  .price-card .label { font-size: 0.70rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Inter', sans-serif; }
+  .price-card .value { font-size: 1.7rem; font-weight: 800; color: #e0f2fe; font-family: 'Inter', sans-serif; margin-top: 0.1rem; }
   .price-card .delta { font-size: 0.85rem; margin-top: 0.2rem; font-weight: 600; }
 
   /* Zero Gamma card */
@@ -85,110 +88,44 @@ st.markdown("""
     padding: 0.85rem 1.1rem;
     margin-bottom: 0.5rem;
   }
-  .flip-card .label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
-  .flip-card .value { font-size: 1.45rem; font-weight: 700; color: #4ade80; font-family: 'Syne', sans-serif; margin-top: 0.15rem; }
-  .flip-card .sub { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; }
+  .flip-card .label { font-size: 0.70rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Inter', sans-serif; }
+  .flip-card .value { font-size: 1.45rem; font-weight: 700; color: #4ade80; font-family: 'Inter', sans-serif; margin-top: 0.15rem; }
+  .flip-card .sub { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; font-family: 'Inter', sans-serif; }
 
-  /* Tabs — más padding, texto visible */
-  .stTabs [data-baseweb="tab-list"] {
-    gap: 6px;
-    border-bottom: 1px solid #2d3f55;
-    padding-bottom: 2px;
-  }
+  /* Tabs */
+  .stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 1px solid #2d3f55; padding-bottom: 2px; }
   .stTabs [data-baseweb="tab"] {
-    border-radius: 6px 6px 0 0;
-    background: #111827;
-    color: #94a3b8;
-    border: 1px solid #2d3f55;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    padding: 0.6rem 1.4rem;
+    border-radius: 6px 6px 0 0; background: #111827; color: #94a3b8;
+    border: 1px solid #2d3f55; font-family: 'Inter', sans-serif; font-size: 0.85rem; padding: 0.6rem 1.4rem;
   }
-  .stTabs [aria-selected="true"] {
-    background: #1e3a5f !important;
-    color: #93c5fd !important;
-    border-bottom-color: #1e3a5f !important;
-    font-weight: 600;
-  }
-  /* Contenido de la tab — padding generoso */
-  .stTabs [data-baseweb="tab-panel"] {
-    padding: 1.5rem 0.5rem 1rem 0.5rem;
-  }
+  .stTabs [aria-selected="true"] { background: #1e3a5f !important; color: #93c5fd !important; border-bottom-color: #1e3a5f !important; font-weight: 600; }
+  .stTabs [data-baseweb="tab-panel"] { padding: 1.5rem 0.5rem 1rem 0.5rem; }
 
   /* Sidebar */
   div[data-testid="stSidebar"] { background: #080b11; border-right: 1px solid #2d3f55; }
-  .sidebar-header {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 800;
-    color: #93c5fd;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-  }
+  .sidebar-header { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #93c5fd; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; }
 
   /* Dataframe */
-  .dataframe thead th { background: #111827 !important; color: #93c5fd !important; font-size: 0.75rem; }
-  .dataframe tbody td { color: #e2e8f0 !important; font-size: 0.78rem; }
+  .dataframe thead th { background: #111827 !important; color: #93c5fd !important; font-size: 0.75rem; font-family: 'Inter', sans-serif; }
+  .dataframe tbody td { color: #e2e8f0 !important; font-size: 0.80rem; }
   .dataframe tbody tr:nth-child(even) { background: #0d1117 !important; }
   .dataframe tbody tr:hover { background: #1e3a5f !important; }
 
   /* Botón */
-  .stButton > button {
-    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    padding: 0.45rem 1rem;
-  }
+  .stButton > button { background: linear-gradient(90deg, #1d4ed8, #3b82f6); color: #fff; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; padding: 0.45rem 1rem; }
   .stButton > button:hover { opacity: 0.85; }
 
   /* Info / warn boxes */
-  .info-box {
-    background: #0c1a2e;
-    border-left: 3px solid #3b82f6;
-    border-radius: 4px;
-    padding: 0.9rem 1rem;
-    font-size: 0.83rem;
-    color: #cbd5e1;
-    margin: 0.5rem 0 1.2rem 0;
-    line-height: 1.55;
-  }
+  .info-box { background: #0c1a2e; border-left: 3px solid #3b82f6; border-radius: 4px; padding: 0.9rem 1rem; font-size: 0.85rem; color: #cbd5e1; margin: 0.5rem 0 1.2rem 0; line-height: 1.55; font-family: 'Inter', sans-serif; }
   .info-box strong { color: #93c5fd; }
-  .warn-box {
-    background: #1a1200;
-    border-left: 3px solid #f59e0b;
-    border-radius: 4px;
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
-    color: #fcd34d;
-    margin: 0.5rem 0;
-  }
-  .err-box {
-    background: #1a0505;
-    border-left: 3px solid #f87171;
-    border-radius: 4px;
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
-    color: #fca5a5;
-    margin: 0.5rem 0;
-  }
+  .warn-box { background: #1a1200; border-left: 3px solid #f59e0b; border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #fcd34d; margin: 0.5rem 0; font-family: 'Inter', sans-serif; }
+  .err-box { background: #1a0505; border-left: 3px solid #f87171; border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #fca5a5; margin: 0.5rem 0; font-family: 'Inter', sans-serif; }
 
   /* Títulos de sección dentro de tabs */
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #e2e8f0;
-    margin: 1rem 0 0.4rem 0;
-    padding-bottom: 0.3rem;
-    border-bottom: 1px solid #2d3f55;
-  }
+  .section-title { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: #e2e8f0; margin: 1rem 0 0.4rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid #2d3f55; }
 
-  /* Labels de selectbox/radio más legibles */
-  label, .st-emotion-cache-1inwz65 { color: #cbd5e1 !important; font-size: 0.82rem !important; }
+  /* Labels de selectbox/radio */
+  label, .st-emotion-cache-1inwz65 { color: #cbd5e1 !important; font-size: 0.85rem !important; font-family: 'Inter', sans-serif; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -214,14 +151,14 @@ def _auto_dtick(strikes):
 
 PLOTLY_TEMPLATE = dict(
     paper_bgcolor="#0a0d14", plot_bgcolor="#0d1117",
-    font=dict(family="DM Mono, monospace", color="#e2e8f0", size=11),
+    font=dict(family="Roboto Mono, monospace", color="#e2e8f0", size=11),
     xaxis=dict(gridcolor="#1a2a3a", zerolinecolor="#2d3f55", linecolor="#2d3f55",
                tickfont=dict(color="#cbd5e1", size=11),
                title_font=dict(color="#94a3b8")),
     yaxis=dict(gridcolor="#1a2a3a", zerolinecolor="#2d3f55", linecolor="#2d3f55",
                tickfont=dict(color="#cbd5e1", size=11),
                title_font=dict(color="#94a3b8")),
-    title_font=dict(color="#f1f5f9", size=14, family="Syne, sans-serif"),
+    title_font=dict(color="#f1f5f9", size=14, family="Inter, sans-serif"),
     colorway=["#38bdf8", "#4ade80", "#f87171", "#fbbf24", "#a78bfa"],
     margin=dict(l=55, r=25, t=50, b=45),
     legend=dict(font=dict(color="#cbd5e1")),
@@ -468,7 +405,7 @@ def plot_gex_heatmap(pivot, spot):
         colorscale=[[0,"#f87171"],[0.5,"#111827"],[1,"#4ade80"]],
         zmid=0, zmin=-abs_max, zmax=abs_max,
         text=text_mat, texttemplate="%{text}",
-        textfont={"size":10,"family":"DM Mono","color":"white"},
+        textfont={"size":10,"family":"Roboto Mono","color":"white"},
         colorbar=dict(title="GEX", tickfont=dict(size=9, color="#cbd5e1"),
                       title_font=dict(color="#94a3b8")),
         hovertemplate="Strike: %{y}<br>Exp: %{x}<br>GEX: %{z:,.0f}<extra></extra>",
@@ -496,7 +433,7 @@ def plot_gex_bar(gex, spot, strike_range, zero_gamma=None):
         marker_color=colors, opacity=0.85,
         text=df["gex_net"].apply(lambda x: _fmt(x, signed=True)),
         textposition="outside",
-        textfont=dict(color="#e2e8f0", size=10, family="DM Mono"),
+        textfont=dict(color="#e2e8f0", size=10, family="Roboto Mono"),
         hovertemplate="Strike %{y}: %{x:,.0f}<extra></extra>",
     ))
     fig.add_hline(y=spot, line=dict(color="#38bdf8", width=1.5, dash="dot"),
