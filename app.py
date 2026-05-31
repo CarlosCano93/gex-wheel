@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -22,114 +21,464 @@ except ImportError:
 # =============================================================================
 # CONFIGURACIÓN DE LA PÁGINA
 # =============================================================================
+FONT_HEADING = "Inter, sans-serif"
+FONT_DATA = "Roboto Mono, monospace"
 
 st.set_page_config(page_title="GEX Wheel Dashboard", page_icon="📊",
                    layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
 <style>
-  /* Importamos Inter (títulos) y Roboto Mono (datos/números) */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;800&display=swap');
 
-  html, body, [class*="css"] {
-    font-family: 'Roboto Mono', monospace;
-    background-color: #0a0d14;
-    color: #e2e8f0;
+  /* Definición de Variables CSS */
+  :root {
+    --font-heading: 'Inter', sans-serif;
+    --font-data: 'Roboto Mono', monospace;
   }
-  .main { background-color: #0a0d14; }
-  .block-container { padding-top: 1.5rem; padding-left: 2rem; padding-right: 2rem; }
-  
-  /* Títulos usando Inter */
-  h1, h2, h3 { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; color: #f1f5f9; }
+            
+  /* ── Token system: dark mode (Streamlit default) ── */
+  :root {
+    --bg-base:        #0a0d14;
+    --bg-surface:     #111827;
+    --bg-surface-2:   #1a2235;
+    --bg-sidebar:     #080b11;
+    --border:         #2d3f55;
+    --border-strong:  #3b5070;
 
-  /* Metric cards */
+    --text-primary:   #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted:     #64748b;
+    --text-label:     #94a3b8;
+
+    --accent-blue:    #3b82f6;
+    --accent-blue-lt: #93c5fd;
+    --accent-green:   #4ade80;
+    --accent-red:     #f87171;
+    --accent-amber:   #f59e0b;
+
+    --card-price-bg:  linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    --card-price-bdr: #3b82f6;
+    --card-price-lbl: #93c5fd;
+    --card-price-val: #e0f2fe;
+
+    --card-metric-bg: linear-gradient(135deg, #111827 0%, #1a2235 100%);
+    --card-flip-bg:   linear-gradient(135deg, #0f1f0f 0%, #1a2235 100%);
+    --card-flip-bdr:  #166534;
+
+    --info-bg:        rgba(59,130,246,0.10);
+    --info-bdr:       #3b82f6;
+    --info-text:      #cbd5e1;
+    --info-strong:    #93c5fd;
+
+    --warn-bg:        rgba(245,158,11,0.10);
+    --warn-bdr:       #f59e0b;
+    --warn-text:      #fcd34d;
+
+    --err-bg:         rgba(248,113,113,0.10);
+    --err-bdr:        #f87171;
+    --err-text:       #fca5a5;
+
+    --tab-bg:         #111827;
+    --tab-text:       #94a3b8;
+    --tab-active-bg:  #1e3a5f;
+    --tab-active-txt: #93c5fd;
+
+    --wall-call-bg:   rgba(74,222,128,0.12);
+    --wall-call-bdr:  #166534;
+    --wall-call-txt:  #4ade80;
+    --wall-put-bg:    rgba(248,113,113,0.12);
+    --wall-put-bdr:   #7f1d1d;
+    --wall-put-txt:   #f87171;
+  }
+
+  /* ── Token overrides: light mode ── */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg-base:        #f8fafc;
+      --bg-surface:     #ffffff;
+      --bg-surface-2:   #f1f5f9;
+      --bg-sidebar:     #f0f4f8;
+      --border:         #cbd5e1;
+      --border-strong:  #94a3b8;
+
+      --text-primary:   #0f172a;
+      --text-secondary: #1e293b;
+      --text-muted:     #64748b;
+      --text-label:     #475569;
+
+      --accent-blue:    #2563eb;
+      --accent-blue-lt: #1d4ed8;
+      --accent-green:   #16a34a;
+      --accent-red:     #dc2626;
+      --accent-amber:   #d97706;
+
+      --card-price-bg:  linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      --card-price-bdr: #2563eb;
+      --card-price-lbl: #1d4ed8;
+      --card-price-val: #0f172a;
+
+      --card-metric-bg: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+      --card-flip-bg:   linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      --card-flip-bdr:  #16a34a;
+
+      --info-bg:        #eff6ff;
+      --info-bdr:       #2563eb;
+      --info-text:      #1e3a5f;
+      --info-strong:    #1d4ed8;
+
+      --warn-bg:        #fffbeb;
+      --warn-bdr:       #d97706;
+      --warn-text:      #92400e;
+
+      --err-bg:         #fef2f2;
+      --err-bdr:        #dc2626;
+      --err-text:       #991b1b;
+
+      --tab-bg:         #f1f5f9;
+      --tab-text:       #475569;
+      --tab-active-bg:  #dbeafe;
+      --tab-active-txt: #1d4ed8;
+
+      --wall-call-bg:   #f0fdf4;
+      --wall-call-bdr:  #16a34a;
+      --wall-call-txt:  #15803d;
+      --wall-put-bg:    #fef2f2;
+      --wall-put-bdr:   #dc2626;
+      --wall-put-txt:   #b91c1c;
+    }
+  }
+
+  /* Streamlit también expone data-theme en el HTML root cuando el usuario
+     cambia desde el menú de la app — cubrimos ambas vías */
+  [data-theme="light"] {
+    --bg-base:        #f8fafc;
+    --bg-surface:     #ffffff;
+    --bg-surface-2:   #f1f5f9;
+    --bg-sidebar:     #f0f4f8;
+    --border:         #cbd5e1;
+    --border-strong:  #94a3b8;
+
+    --text-primary:   #0f172a;
+    --text-secondary: #1e293b;
+    --text-muted:     #64748b;
+    --text-label:     #475569;
+
+    --accent-blue:    #2563eb;
+    --accent-blue-lt: #1d4ed8;
+    --accent-green:   #16a34a;
+    --accent-red:     #dc2626;
+    --accent-amber:   #d97706;
+
+    --card-price-bg:  linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    --card-price-bdr: #2563eb;
+    --card-price-lbl: #1d4ed8;
+    --card-price-val: #0f172a;
+
+    --card-metric-bg: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    --card-flip-bg:   linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    --card-flip-bdr:  #16a34a;
+
+    --info-bg:        #eff6ff;
+    --info-bdr:       #2563eb;
+    --info-text:      #1e3a5f;
+    --info-strong:    #1d4ed8;
+
+    --warn-bg:        #fffbeb;
+    --warn-bdr:       #d97706;
+    --warn-text:      #92400e;
+
+    --err-bg:         #fef2f2;
+    --err-bdr:        #dc2626;
+    --err-text:       #991b1b;
+
+    --tab-bg:         #f1f5f9;
+    --tab-text:       #475569;
+    --tab-active-bg:  #dbeafe;
+    --tab-active-txt: #1d4ed8;
+
+    --wall-call-bg:   #f0fdf4;
+    --wall-call-bdr:  #16a34a;
+    --wall-call-txt:  #15803d;
+    --wall-put-bg:    #fef2f2;
+    --wall-put-bdr:   #dc2626;
+    --wall-put-txt:   #b91c1c;
+  }
+
+  /* ── Base layout ── */
+  html, body, [class*="css"] {
+    font-family: var(--font-data);
+    background-color: var(--bg-base) !important;
+    color: var(--text-secondary) !important;
+  }
+  .main, .block-container { background-color: var(--bg-base) !important; }
+  .block-container { padding-top: 1.5rem; padding-left: 2rem; padding-right: 2rem; }
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    color: var(--text-primary) !important;
+  }
+  p, span, li { color: var(--text-secondary); }
+
+  /* ── Metric cards ── */
   .metric-card {
-    background: linear-gradient(135deg, #111827 0%, #1a2235 100%);
-    border: 1px solid #2d3f55;
-    border-radius: 8px;
+    background: var(--card-metric-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
     padding: 0.85rem 1.1rem;
     margin-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   .metric-card .label {
-    font-size: 0.70rem;
-    color: #94a3b8;
+    font-size: 0.68rem;
+    color: var(--text-label);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.08em;
   }
   .metric-card .value {
     font-size: 1.45rem;
     font-weight: 700;
-    color: #f1f5f9;
-    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    font-family: var(--font-data);
     margin-top: 0.15rem;
   }
   .metric-card .delta { font-size: 0.78rem; margin-top: 0.15rem; }
-  .pos { color: #4ade80; }
-  .neg { color: #f87171; }
+  .pos { color: var(--accent-green) !important; }
+  .neg { color: var(--accent-red)   !important; }
 
-  /* Precio destacado */
+  /* ── Price card ── */
   .price-card {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
-    border: 1px solid #3b82f6;
+    background: var(--card-price-bg);
+    border: 1px solid var(--card-price-bdr);
     border-radius: 10px;
     padding: 0.9rem 1.2rem;
     margin-bottom: 0.5rem;
+    box-shadow: 0 1px 4px rgba(59,130,246,0.15);
   }
-  .price-card .label { font-size: 0.70rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Inter', sans-serif; }
-  .price-card .value { font-size: 1.7rem; font-weight: 800; color: #e0f2fe; font-family: 'Inter', sans-serif; margin-top: 0.1rem; }
+  .price-card .label {
+    font-size: 0.68rem;
+    color: var(--card-price-lbl);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .price-card .value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--card-price-val);
+    font-family: var(--font-heading);
+    margin-top: 0.1rem;
+  }
   .price-card .delta { font-size: 0.85rem; margin-top: 0.2rem; font-weight: 600; }
 
-  /* Zero Gamma card */
+  /* ── Zero Gamma / flip card ── */
   .flip-card {
-    background: linear-gradient(135deg, #0f1f0f 0%, #1a2235 100%);
-    border: 1px solid #166534;
-    border-radius: 8px;
+    background: var(--card-flip-bg);
+    border: 1px solid var(--card-flip-bdr);
+    border-radius: 10px;
     padding: 0.85rem 1.1rem;
     margin-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  .flip-card .label { font-size: 0.70rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Inter', sans-serif; }
-  .flip-card .value { font-size: 1.45rem; font-weight: 700; color: #4ade80; font-family: 'Inter', sans-serif; margin-top: 0.15rem; }
-  .flip-card .sub { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; font-family: 'Inter', sans-serif; }
+  .flip-card .label {
+    font-size: 0.68rem;
+    color: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .flip-card .value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    font-family: var(--font-heading);
+    margin-top: 0.15rem;
+  }
+  .flip-card .sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
 
-  /* Tabs */
-  .stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 1px solid #2d3f55; padding-bottom: 2px; }
+  /* ── Tabs ── */
+  .stTabs [data-baseweb="tab-list"] {
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+  }
   .stTabs [data-baseweb="tab"] {
-    border-radius: 6px 6px 0 0; background: #111827; color: #94a3b8;
-    border: 1px solid #2d3f55; font-family: 'Inter', sans-serif; font-size: 0.85rem; padding: 0.6rem 1.4rem;
+    border-radius: 6px 6px 0 0;
+    background: var(--tab-bg);
+    color: var(--tab-text);
+    border: 1px solid var(--border);
+    font-family: var(--font-data);
+    font-size: 0.85rem;
+    padding: 0.6rem 1.4rem;
+    transition: background 0.15s, color 0.15s;
   }
-  .stTabs [aria-selected="true"] { background: #1e3a5f !important; color: #93c5fd !important; border-bottom-color: #1e3a5f !important; font-weight: 600; }
-  .stTabs [data-baseweb="tab-panel"] { padding: 1.5rem 0.5rem 1rem 0.5rem; }
+  .stTabs [data-baseweb="tab"]:hover {
+    background: var(--bg-surface-2) !important;
+    color: var(--text-primary) !important;
+  }
+  .stTabs [aria-selected="true"] {
+    background: var(--tab-active-bg) !important;
+    color: var(--tab-active-txt) !important;
+    border-bottom-color: var(--tab-active-bg) !important;
+    font-weight: 600;
+  }
+  .stTabs [data-baseweb="tab-panel"] {
+    padding: 1.5rem 0.5rem 1rem 0.5rem;
+  }
 
-  /* Sidebar */
-  div[data-testid="stSidebar"] { background: #080b11; border-right: 1px solid #2d3f55; }
-  .sidebar-header { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #93c5fd; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  /* ── Sidebar ── */
+  div[data-testid="stSidebar"] {
+    background: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border);
+  }
+  div[data-testid="stSidebar"] * { color: var(--text-secondary) !important; }
+  .sidebar-header {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--accent-blue) !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
 
-  /* Dataframe */
-  .dataframe thead th { background: #111827 !important; color: #93c5fd !important; font-size: 0.75rem; font-family: 'Inter', sans-serif; }
-  .dataframe tbody td { color: #e2e8f0 !important; font-size: 0.80rem; }
-  .dataframe tbody tr:nth-child(even) { background: #0d1117 !important; }
-  .dataframe tbody tr:hover { background: #1e3a5f !important; }
+  /* ── Streamlit native widgets: labels & inputs ── */
+  label,
+  .stTextInput label,
+  .stNumberInput label,
+  .stSlider label,
+  .stSelectbox label,
+  .stRadio label,
+  .stCheckbox label {
+    color: var(--text-label) !important;
+    font-size: 0.82rem !important;
+    font-family: var(--font-heading);
+  }
+  /* Input boxes */
+  .stTextInput input,
+  .stNumberInput input {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px !important;
+  }
+  /* Selectbox */
+  .stSelectbox > div > div {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
+  }
+  /* Slider track label */
+  .stSlider [data-testid="stTickBar"] { color: var(--text-muted) !important; }
+  /* Radio */
+  .stRadio > div { color: var(--text-secondary) !important; }
 
-  /* Botón */
-  .stButton > button { background: linear-gradient(90deg, #1d4ed8, #3b82f6); color: #fff; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; padding: 0.45rem 1rem; }
-  .stButton > button:hover { opacity: 0.85; }
+  /* ── Divider ── */
+  hr { border-color: var(--border) !important; }
 
-  /* Info / warn boxes */
-  .info-box { background: #0c1a2e; border-left: 3px solid #3b82f6; border-radius: 4px; padding: 0.9rem 1rem; font-size: 0.85rem; color: #cbd5e1; margin: 0.5rem 0 1.2rem 0; line-height: 1.55; font-family: 'Inter', sans-serif; }
-  .info-box strong { color: #93c5fd; }
-  .warn-box { background: #1a1200; border-left: 3px solid #f59e0b; border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #fcd34d; margin: 0.5rem 0; font-family: 'Inter', sans-serif; }
-  .err-box { background: #1a0505; border-left: 3px solid #f87171; border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #fca5a5; margin: 0.5rem 0; font-family: 'Inter', sans-serif; }
+  /* ── Button ── */
+  .stButton > button {
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-data);
+    font-size: 0.82rem;
+    padding: 0.45rem 1rem;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+    transition: opacity 0.15s, box-shadow 0.15s;
+  }
+  .stButton > button:hover {
+    opacity: 0.88;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+  }
 
-  /* Títulos de sección dentro de tabs */
-  .section-title { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: #e2e8f0; margin: 1rem 0 0.4rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid #2d3f55; }
+  /* ── Info / warn / err boxes ── */
+  .info-box {
+    background: var(--info-bg);
+    border-left: 3px solid var(--info-bdr);
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    font-size: 0.83rem;
+    color: var(--info-text);
+    margin: 0.5rem 0 1.2rem 0;
+    line-height: 1.6;
+  }
+  .info-box strong { color: var(--info-strong); }
 
-  /* Labels de selectbox/radio */
-  label, .st-emotion-cache-1inwz65 { color: #cbd5e1 !important; font-size: 0.85rem !important; font-family: 'Inter', sans-serif; }
+  .warn-box {
+    background: var(--warn-bg);
+    border-left: 3px solid var(--warn-bdr);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    color: var(--warn-text);
+    margin: 0.5rem 0;
+    line-height: 1.5;
+  }
+  .warn-box strong { color: var(--warn-text); }
+
+  .err-box {
+    background: var(--err-bg);
+    border-left: 3px solid var(--err-bdr);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    color: var(--err-text);
+    margin: 0.5rem 0;
+  }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 1.2rem 0 0.5rem 0;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  /* ── Wall badges ── */
+  .wall-badge {
+    display: inline-block;
+    padding: 0.18rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: var(--font-data);
+  }
+  .wall-call {
+    background: var(--wall-call-bg);
+    color: var(--wall-call-txt);
+    border: 1px solid var(--wall-call-bdr);
+  }
+  .wall-put {
+    background: var(--wall-put-bg);
+    color: var(--wall-put-txt);
+    border: 1px solid var(--wall-put-bdr);
+  }
+
+  /* ── Dataframe ── */
+  .stDataFrame, [data-testid="stDataFrameResizable"] {
+    border-radius: 8px !important;
+    overflow: hidden;
+    border: 1px solid var(--border) !important;
+  }
+
+  /* ── Streamlit info/success/warning native boxes ── */
+  .stAlert { border-radius: 6px !important; }
+
+  /* ── Footer text ── */
+  .of-footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-family: var(--font-data);
+    margin-top: 0.5rem;
+  }
 </style>
 """, unsafe_allow_html=True)
 
-# Escala adaptativa: formatea valores en la escala correcta
+
 def _fmt(val, signed=False):
     if pd.isna(val) or val == 0: return ""
     sign = "+" if signed and val > 0 else ("-" if signed and val < 0 else "")
@@ -140,29 +489,26 @@ def _fmt(val, signed=False):
     return f"{sign}{v:.1f}"
 
 def _auto_dtick(strikes):
-    """Calcula el dtick óptimo del eje Y según la densidad de strikes."""
     if len(strikes) < 2: return 1
     spread = max(strikes) - min(strikes)
-    # Queremos ~25 etiquetas visibles como máximo
     raw = spread / 25
     for step in [0.5, 1, 2, 2.5, 5, 10, 25, 50, 100]:
         if step >= raw: return step
     return round(raw, -1)
 
-PLOTLY_TEMPLATE = dict(
-    paper_bgcolor="#0a0d14", plot_bgcolor="#0d1117",
-    font=dict(family="Roboto Mono, monospace", color="#e2e8f0", size=11),
-    xaxis=dict(gridcolor="#1a2a3a", zerolinecolor="#2d3f55", linecolor="#2d3f55",
-               tickfont=dict(color="#cbd5e1", size=11),
-               title_font=dict(color="#94a3b8")),
-    yaxis=dict(gridcolor="#1a2a3a", zerolinecolor="#2d3f55", linecolor="#2d3f55",
-               tickfont=dict(color="#cbd5e1", size=11),
-               title_font=dict(color="#94a3b8")),
-    title_font=dict(color="#f1f5f9", size=14, family="Inter, sans-serif"),
-    colorway=["#38bdf8", "#4ade80", "#f87171", "#fbbf24", "#a78bfa"],
-    margin=dict(l=55, r=25, t=50, b=45),
-    legend=dict(font=dict(color="#cbd5e1")),
-)
+def _plotly_theme():
+    """
+    Layout dict minimalista adaptado para Streamlit.
+    Al NO forzar colores de fondo ni ejes, Streamlit intercepta el gráfico
+    y le aplica su tema nativo (Light o Dark) en tiempo real.
+    """
+    return dict(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Roboto Mono, monospace", size=11),
+        title_font=dict(family="Inter, sans-serif", size=14),
+        margin=dict(l=55, r=25, t=50, b=45)
+    )
 
 
 # =============================================================================
@@ -185,7 +531,6 @@ def fetch_spot_price(ticker):
 
 @st.cache_data(ttl=900, show_spinner=False)
 def fetch_day_change(ticker):
-    """Devuelve (precio_cierre_anterior, variacion_$, variacion_%) o (None,None,None)."""
     if not YF_AVAILABLE: return None, None, None
     try:
         tk   = yf.Ticker(ticker)
@@ -198,6 +543,7 @@ def fetch_day_change(ticker):
         return round(prev, 4), round(chg, 4), round(pct, 2)
     except Exception: return None, None, None
 
+# FIX: min_dte y max_dte forman parte de la cache key para evitar datos rangeados incorrectos
 @st.cache_data(ttl=900, show_spinner=False)
 def fetch_option_chain(ticker, min_dte, max_dte):
     if not YF_AVAILABLE: return pd.DataFrame()
@@ -215,8 +561,12 @@ def fetch_option_chain(ticker, min_dte, max_dte):
         try: exp_date = datetime.strptime(exp_str, "%Y-%m-%d").date()
         except ValueError: continue
         if not (exp_min <= exp_date <= exp_max): continue
-        try: chain = tk.option_chain(exp_str)
-        except Exception: continue
+        # FIX: control de errores por vencimiento — un fallo no silencia el resto
+        try:
+            chain = tk.option_chain(exp_str)
+        except Exception as e:
+            st.warning(f"No se pudo cargar {exp_str}: {e}", icon="⚠️")
+            continue
         for df_raw, right_label in [(chain.calls, "C"), (chain.puts, "P")]:
             if df_raw is None or df_raw.empty: continue
             df = df_raw.copy()
@@ -243,6 +593,17 @@ def fetch_option_chain(ticker, min_dte, max_dte):
     return out.sort_values(["expiration","right","strike"]).reset_index(drop=True)
 
 @st.cache_data(ttl=900, show_spinner=False)
+def fetch_dividend_yield(ticker):
+    """Obtiene el dividend yield anual del ticker para usarlo en BSM."""
+    if not YF_AVAILABLE: return 0.0
+    try:
+        tk = yf.Ticker(ticker)
+        info = tk.info
+        dy = info.get("dividendYield", 0.0) or 0.0
+        return float(dy)
+    except Exception: return 0.0
+
+@st.cache_data(ttl=900, show_spinner=False)
 def fetch_stock_history(ticker, days=365):
     if not YF_AVAILABLE: return pd.DataFrame()
     try:
@@ -263,45 +624,72 @@ def fetch_stock_history(ticker, days=365):
 
 
 # =============================================================================
-# BLOQUE 2 – GRIEGAS BSM (vectorizado)
+# BLOQUE 2 – GRIEGAS BSM con dividendos (Merton 1973)
 # =============================================================================
 
-def _bsm_d1d2(S, K, T, r, iv):
+def _bsm_d1d2(S, K, T, r, q, iv):
+    """d1/d2 con tasa de dividendos continua q (modelo Merton)."""
     with np.errstate(divide="ignore", invalid="ignore"):
-        safe_T  = np.maximum(T, 1e-10)
-        safe_K  = np.where(K > 0, K, np.nan)
+        safe_T = np.maximum(T, 1e-10)
+        safe_K = np.where(K > 0, K, np.nan)
         d1 = np.where(
             (T > 0) & (iv > 0) & (S > 0) & (K > 0),
-            (np.log(S / safe_K) + (r + 0.5 * iv**2) * safe_T) / (iv * np.sqrt(safe_T)),
+            (np.log(S / safe_K) + (r - q + 0.5 * iv**2) * safe_T) / (iv * np.sqrt(safe_T)),
             np.nan,
         )
     return d1, d1 - iv * np.sqrt(np.maximum(T, 1e-10))
 
-def enrich_greeks(chain, spot, r=0.05):
+def enrich_greeks(chain, spot, r=0.05, q=0.0):
+    """
+    Calcula gamma, delta y theta con dividendos.
+    q: dividend yield anual continuo (ej: 0.02 para 2%).
+    FIX: IV faltante → mediana del vencimiento, no 0.4 fijo.
+    """
     if chain.empty or not SCIPY_AVAILABLE: return chain
     chain = chain.copy()
     for col in ["gamma","delta","theta"]:
         if col not in chain.columns: chain[col] = np.nan
 
+    # FIX: Imputar IV faltante con mediana por vencimiento (más representativo que 0.4 global)
+    chain["iv"] = chain.groupby("expiration")["iv"].transform(
+        lambda x: x.fillna(x.median() if x.notna().any() else 0.4)
+    )
+    chain["iv"] = chain["iv"].fillna(0.4)  # fallback final si algún vencimiento tiene todo NaN
+
     today   = date.today()
     T       = np.array([(e - today).days for e in chain["expiration"]], dtype=float) / 365.0
     K       = chain["strike"].values.astype(float)
-    iv      = chain["iv"].fillna(0.4).values.astype(float)
+    iv      = chain["iv"].values.astype(float)
     is_call = (chain["right"] == "C").values
     S       = float(spot)
 
-    d1, d2  = _bsm_d1d2(S, K, T, r, iv)
+    d1, d2  = _bsm_d1d2(S, K, T, r, q, iv)
     safe_T  = np.maximum(T, 1e-10)
+    e_qT    = np.exp(-q * safe_T)
     e_rT    = np.exp(-r * safe_T)
 
-    gamma = np.where(np.isfinite(d1),
-                     norm.pdf(d1) / (S * iv * np.sqrt(safe_T)), np.nan)
-    delta = np.where(np.isfinite(d1),
-                     np.where(is_call, norm.cdf(d1), norm.cdf(d1) - 1), np.nan)
-    th_c  = (-S * norm.pdf(d1) * iv / (2 * np.sqrt(safe_T))
-             - r * K * e_rT * norm.cdf(d2)) / 365.0
-    th_p  = (-S * norm.pdf(d1) * iv / (2 * np.sqrt(safe_T))
-             + r * K * e_rT * norm.cdf(-d2)) / 365.0
+    # Gamma con dividendos
+    gamma = np.where(
+        np.isfinite(d1),
+        e_qT * norm.pdf(d1) / (S * iv * np.sqrt(safe_T)),
+        np.nan,
+    )
+    # Delta con dividendos
+    delta = np.where(
+        np.isfinite(d1),
+        np.where(is_call,
+                 e_qT * norm.cdf(d1),
+                 e_qT * (norm.cdf(d1) - 1)),
+        np.nan,
+    )
+    # Theta con dividendos
+    th_common = -e_qT * S * norm.pdf(d1) * iv / (2 * np.sqrt(safe_T))
+    th_c = (th_common
+            + q * S * e_qT * norm.cdf(d1)
+            - r * K * e_rT * norm.cdf(d2)) / 365.0
+    th_p = (th_common
+            - q * S * e_qT * norm.cdf(-d1)
+            + r * K * e_rT * norm.cdf(-d2)) / 365.0
     theta = np.where(np.isfinite(d1),
                      np.where(is_call, th_c, th_p), np.nan)
 
@@ -340,7 +728,6 @@ def calculate_gex_heatmap(chain, spot):
     return df.groupby(["strike","expiration"])["gex_signed"].sum().unstack("expiration").fillna(0)
 
 def find_zero_gamma(gex):
-    """Interpola el precio donde GEX neto cruza cero. Devuelve None si no hay cruce."""
     if gex.empty or "gex_net" not in gex.columns: return None
     df     = gex.sort_values("strike").copy()
     signs  = np.sign(df["gex_net"].values)
@@ -352,9 +739,29 @@ def find_zero_gamma(gex):
     if v2 == v1: return float((s1 + s2) / 2)
     return float(s1 - v1 * (s2 - s1) / (v2 - v1))
 
+# ── Muros por expiración (núcleo del escáner mejorado) ───────────────────────
+
+def get_walls_per_expiration(pivot):
+    """
+    Para cada columna del heatmap (= una expiración) calcula:
+      - call_wall: strike con mayor GEX neto positivo → techo
+      - put_wall:  strike con menor GEX neto negativo → suelo
+
+    Devuelve un dict  {exp_str: {"call_wall": float, "put_wall": float}}
+    """
+    walls = {}
+    for exp_str in pivot.columns:
+        col = pivot[exp_str]
+        pos = col[col > 0]
+        neg = col[col < 0]
+        call_wall = float(pos.idxmax()) if not pos.empty else None
+        put_wall  = float(neg.idxmin()) if not neg.empty else None
+        walls[str(exp_str)] = {"call_wall": call_wall, "put_wall": put_wall}
+    return walls
+
 
 # =============================================================================
-# BLOQUE 4 – VOLUME PROFILE (OHLCV)
+# BLOQUE 4 – VOLUME PROFILE
 # =============================================================================
 
 def compute_volume_profile(hist, n_bins=150):
@@ -402,17 +809,20 @@ def plot_gex_heatmap(pivot, spot):
 
     fig = go.Figure(go.Heatmap(
         z=z, x=[str(c) for c in pivot.columns], y=strikes,
-        colorscale=[[0,"#f87171"],[0.5,"#111827"],[1,"#4ade80"]],
+        # 1. CAMBIO: El punto central (0.5) ahora es blanco "#ffffff"
+        colorscale=[[0, "#f87171"], [0.5, "#ffffff"], [1, "#4ade80"]],
         zmid=0, zmin=-abs_max, zmax=abs_max,
         text=text_mat, texttemplate="%{text}",
-        textfont={"size":10,"family":"Roboto Mono","color":"white"},
+        # 2. CAMBIO: Quitamos el "color":"white" fijo para que Plotly lo adapte
+        textfont={"size": 10, "family": "var(--font-data)"}, 
         colorbar=dict(title="GEX", tickfont=dict(size=9, color="#cbd5e1"),
                       title_font=dict(color="#94a3b8")),
         hovertemplate="Strike: %{y}<br>Exp: %{x}<br>GEX: %{z:,.0f}<extra></extra>",
     ))
     fig.add_hline(y=spot, line=dict(color="#f59e0b", width=1.5, dash="dot"),
                   annotation_text=f"Spot {spot:.2f}", annotation_font_color="#f59e0b")
-    fig.update_layout(title="GEX Heatmap — Strike × Expiración", height=800, **PLOTLY_TEMPLATE)
+    PT = _plotly_theme()
+    fig.update_layout(title="GEX Heatmap — Strike × Expiración", height=800, **PT)
     fig.update_xaxes(type="category", title_text="Expiración")
     fig.update_yaxes(dtick=dtick, title_text="Strike ($)")
     return fig
@@ -422,6 +832,7 @@ def plot_gex_bar(gex, spot, strike_range, zero_gamma=None):
     df = gex[(gex["strike"] >= strike_range[0]) & (gex["strike"] <= strike_range[1])].copy()
     if df.empty: return go.Figure()
 
+    PT        = _plotly_theme()
     call_wall = df.loc[df["gex_net"].idxmax(), "strike"]
     put_wall  = df.loc[df["gex_net"].idxmin(), "strike"]
     colors    = ["#4ade80" if v > 0 else "#f87171" for v in df["gex_net"]]
@@ -433,7 +844,7 @@ def plot_gex_bar(gex, spot, strike_range, zero_gamma=None):
         marker_color=colors, opacity=0.85,
         text=df["gex_net"].apply(lambda x: _fmt(x, signed=True)),
         textposition="outside",
-        textfont=dict(color="#e2e8f0", size=10, family="Roboto Mono"),
+        textfont=dict(size=10, family="Roboto Mono"), # Color automático
         hovertemplate="Strike %{y}: %{x:,.0f}<extra></extra>",
     ))
     fig.add_hline(y=spot, line=dict(color="#38bdf8", width=1.5, dash="dot"),
@@ -453,7 +864,7 @@ def plot_gex_bar(gex, spot, strike_range, zero_gamma=None):
     fig.update_layout(
         title="GEX Neto por Strike — Call Wall · Put Wall · Zero Gamma",
         xaxis_title="Net GEX", yaxis_title="Strike", height=850, bargap=0.2,
-        **PLOTLY_TEMPLATE,
+        **PT,
     )
     fig.update_xaxes(range=[-max_abs, max_abs], showgrid=True)
     fig.update_yaxes(dtick=dtick)
@@ -466,18 +877,21 @@ def plot_open_interest(chain, spot, strike_range):
     puts  = df[df["right"]=="P"].groupby("strike")["open_interest"].sum()
     all_s = sorted(set(calls.index) | set(puts.index))
     dtick = _auto_dtick(all_s)
+    PT    = _plotly_theme()
 
     fig = go.Figure()
     fig.add_trace(go.Bar(x=calls.reindex(all_s, fill_value=0).values, y=all_s,
                          orientation="h", name="Calls OI", marker_color="#4ade80", opacity=0.8))
     fig.add_trace(go.Bar(x=-puts.reindex(all_s, fill_value=0).values, y=all_s,
                          orientation="h", name="Puts OI", marker_color="#f87171", opacity=0.8))
-    fig.add_vline(x=0, line=dict(color="#334155", width=1))
+    
+    fig.add_vline(x=0, line=dict(color="rgba(150,150,150,0.5)", width=1))
     fig.add_hline(y=spot, line=dict(color="#f59e0b", width=1.5, dash="dot"),
                   annotation_text=f"Spot {spot:.2f}", annotation_font_color="#f59e0b")
+    
     fig.update_layout(title="Open Interest por Strike — Calls vs Puts",
                       barmode="overlay", height=800,
-                      xaxis_title="Open Interest", yaxis_title="Strike", **PLOTLY_TEMPLATE)
+                      xaxis_title="Open Interest", yaxis_title="Strike", **PT)
     fig.update_yaxes(dtick=dtick)
     return fig
 
@@ -495,15 +909,19 @@ def plot_tv_volume_profile(vp, spot, hist, agg="D"):
     else:
         h = hist.copy()
 
+    PT = _plotly_theme()
+
     fig = make_subplots(rows=1, cols=2, column_widths=[0.8, 0.2],
                         shared_yaxes=True, horizontal_spacing=0)
+    
     fig.add_trace(go.Candlestick(
         x=h["date"], open=h["open"], high=h["high"], low=h["low"], close=h["close"],
         name="Precio", increasing_line_color="#4ade80", decreasing_line_color="#f87171",
     ), row=1, col=1)
 
     hvn_thr    = vp["volume"].quantile(0.75)
-    bar_colors = ["#38bdf8" if v >= hvn_thr else "rgba(148,163,184,0.25)" for v in vp["volume"]]
+    bar_colors = ["#3b82f6" if v >= hvn_thr else "rgba(148,163,184,0.4)" for v in vp["volume"]]
+    
     fig.add_trace(go.Bar(
         x=vp["volume"], y=vp["price_mid"], orientation="h",
         width=vp["width"], marker_color=bar_colors, marker_line_width=0,
@@ -513,65 +931,120 @@ def plot_tv_volume_profile(vp, spot, hist, agg="D"):
 
     fig.add_hline(y=spot, line=dict(color="#f59e0b", width=1.5, dash="dot"),
                   annotation_text=f"Spot ${spot:.2f}", annotation_font_color="#f59e0b")
+    
     fig.update_layout(
-        title="Precio + Volume Profile (HVN azul = imanes macro)",
+        title="Precio + Volume Profile (HVN = imanes macro)",
         xaxis_rangeslider_visible=False, barmode="overlay",
-        height=800, bargap=0, bargroupgap=0, **PLOTLY_TEMPLATE,
+        height=800, bargap=0, bargroupgap=0, **PT,
     )
-    fig.update_xaxes(showgrid=True, title="Fecha", row=1, col=1,
-                     tickfont=dict(color="#cbd5e1"), title_font=dict(color="#94a3b8"))
-    fig.update_xaxes(autorange="reversed", showgrid=False, title="Volumen", row=1, col=2,
-                     tickfont=dict(color="#cbd5e1"), title_font=dict(color="#94a3b8"))
-    fig.update_yaxes(showgrid=True, title="Precio ($)", row=1, col=1,
-                     tickfont=dict(color="#cbd5e1"), title_font=dict(color="#94a3b8"))
+    
+    # Streamlit coloreará los textos y la cuadrícula automáticamente
+    fig.update_xaxes(showgrid=True, title="Fecha", row=1, col=1)
+    fig.update_xaxes(autorange="reversed", showgrid=False, title="Volumen", row=1, col=2)
+    fig.update_yaxes(showgrid=True, title="Precio ($)", row=1, col=1)
+    
     return fig
 
 
 # =============================================================================
-# BLOQUE 6 – ESCÁNER WHEEL
+# BLOQUE 6 – ESCÁNER WHEEL CON MUROS GEX POR EXPIRACIÓN
 # =============================================================================
 
-def _vp_support_level(vp, spot, pct=0.02):
-    if vp.empty: return spot * 0.90
-    below = vp[vp["price_mid"] < spot * (1 - pct)]
-    return float(below.loc[below["volume"].idxmax(), "price_mid"]) if not below.empty else float(vp.iloc[0]["price_mid"])
+def _nearest_strike(strikes_arr, target):
+    """Devuelve el strike más cercano a target en el array dado."""
+    if len(strikes_arr) == 0: return None
+    idx = np.abs(np.array(strikes_arr, dtype=float) - target).argmin()
+    return float(strikes_arr[idx])
 
-def _vp_resistance_level(vp, spot, pct=0.01):
-    if vp.empty: return spot * 1.05
-    above = vp[vp["price_mid"] > spot * (1 + pct)]
-    return float(above.loc[above["volume"].idxmax(), "price_mid"]) if not above.empty else float(vp.iloc[-1]["price_mid"])
-
-def scan_wheel_opportunities(chain, spot, vp, ticker,
+def scan_wheel_opportunities(chain, spot, pivot, ticker,
                               min_iv, min_oi, min_prem,
-                              min_dte, max_dte, max_delta, use_vp):
+                              min_dte, max_dte, max_delta,
+                              wall_tol_pct=0.05):
+    """
+    Escáner Wheel mejorado con muros GEX por expiración.
+
+    Lógica de filtrado:
+    - CSP (Venta Put): strike dentro de `wall_tol_pct` % por encima del Put Wall
+      de esa expiración. El Put Wall es el soporte donde los MM compran.
+    - CC (Covered Call): strike dentro de `wall_tol_pct` % por debajo del Call Wall
+      de esa expiración. El Call Wall es el techo donde los MM venden.
+
+    Columnas nuevas:
+    - Muro GEX ($): nivel del muro relevante para esa expiración
+    - Dist. Muro (%): distancia del strike al muro en %
+    - Tipo Muro: Call Wall / Put Wall
+    """
     if chain.empty: return pd.DataFrame()
+
+    # Precalcular muros por expiración desde el heatmap
+    walls_per_exp = get_walls_per_expiration(pivot) if not pivot.empty else {}
+
     today = date.today()
     df = chain.copy()
     df["dte"]          = df["expiration"].apply(lambda e: max((e - today).days, 0))
     df["mid"]          = ((df["bid"] + df["ask"]) / 2).clip(lower=0)
     df["iv_pct"]       = (df["iv"] * 100).round(1)
-    df["annual_yield"] = np.where(df["dte"] > 0, df["mid"] / spot * 365 / df["dte"] * 100, 0).clip(0, 500)
+    # FIX: annual_yield usa el capital comprometido real (strike × 100) no el spot
+    df["capital"]      = df["strike"] * 100
+    df["annual_yield"] = np.where(
+        (df["dte"] > 0) & (df["capital"] > 0),
+        df["mid"] * 100 / df["capital"] * 365 / df["dte"] * 100,
+        0,
+    ).clip(0, 500)
     df["spread_pct"]   = np.where(df["mid"] > 0, (df["ask"]-df["bid"]).clip(lower=0)/df["mid"]*100, 999)
     df["delta"]        = pd.to_numeric(df["delta"], errors="coerce")
     df["theta"]        = pd.to_numeric(df["theta"], errors="coerce")
 
+    # Filtros base (DTE, OI, spread, delta)
     df = df[
         (df["dte"] >= min_dte) & (df["dte"] <= max_dte) &
         (df["open_interest"] >= min_oi) & (df["spread_pct"] <= 40) &
         (df["delta"].abs() <= max_delta)
     ]
+    if df.empty: return pd.DataFrame()
 
-    if use_vp:
-        sup = _vp_support_level(vp, spot)
-        res = _vp_resistance_level(vp, spot)
-        csp = (df["right"]=="P") & (df["iv"]>=min_iv) & (df["mid"]>=min_prem) & (df["strike"]<=sup)
-        cc  = (df["right"]=="C") & (df["mid"]>=min_prem) & (df["strike"]>=res)
-    else:
-        csp = (df["right"]=="P") & (df["iv"]>=min_iv) & (df["mid"]>=min_prem) & (df["strike"]<spot)
-        cc  = (df["right"]=="C") & (df["mid"]>=min_prem) & (df["strike"]>spot)
+    # ── Enriquecer con datos de muro por expiración ───────────────────────────
+    records = []
+    for _, row in df.iterrows():
+        exp_str  = str(row["expiration"])
+        w        = walls_per_exp.get(exp_str, {})
+        call_w   = w.get("call_wall")
+        put_w    = w.get("put_wall")
+        strike   = row["strike"]
+        right    = row["right"]
 
-    valid = df[csp | cc].copy()
-    if valid.empty: return pd.DataFrame()
+        if right == "P":
+            wall_level = put_w
+            wall_label = "Put Wall"
+            # CSP válida: strike ≥ put_wall y dentro de tolerancia superior
+            if put_w is not None:
+                valid_wall = (strike >= put_w) and (strike <= put_w * (1 + wall_tol_pct))
+            else:
+                # Sin datos de heatmap: acepta puts OTM genéricas (comportamiento anterior)
+                valid_wall = strike < spot
+        else:  # "C"
+            wall_level = call_w
+            wall_label = "Call Wall"
+            # CC válida: strike ≤ call_wall y dentro de tolerancia inferior
+            if call_w is not None:
+                valid_wall = (strike <= call_w) and (strike >= call_w * (1 - wall_tol_pct))
+            else:
+                valid_wall = strike > spot
+
+        if not valid_wall: continue
+
+        # Distancia al muro
+        dist_muro = abs(strike - wall_level) / wall_level * 100 if wall_level else np.nan
+
+        # Filtros de prima y IV
+        if row["iv"] < min_iv: continue
+        if row["mid"] < min_prem: continue
+
+        records.append({**row, "wall_level": wall_level, "wall_label": wall_label,
+                        "dist_muro": dist_muro})
+
+    if not records: return pd.DataFrame()
+    valid = pd.DataFrame(records)
 
     valid["Estrategia"] = np.where(valid["right"]=="P", "Venta Put (CSP)", "Covered Call (CC)")
     valid = valid.sort_values("annual_yield", ascending=False).head(50)
@@ -580,11 +1053,13 @@ def scan_wheel_opportunities(chain, spot, vp, ticker,
         "Estrategia","strike","expiration","dte","right",
         "bid","ask","mid","delta","theta","iv_pct",
         "open_interest","annual_yield","spread_pct",
+        "wall_level","wall_label","dist_muro",
     ]].rename(columns={
         "strike":"Strike","expiration":"Expiración","dte":"DTE","right":"Tipo",
         "bid":"Bid","ask":"Ask","mid":"Mid","delta":"Delta","theta":"Theta/día",
         "iv_pct":"IV (%)","open_interest":"OI",
         "annual_yield":"Yield Anual (%)","spread_pct":"Spread (%)",
+        "wall_level":"Muro GEX ($)","wall_label":"Tipo Muro","dist_muro":"Dist. Muro (%)",
     }).copy()
 
     out["Ticker"]          = ticker
@@ -597,6 +1072,8 @@ def scan_wheel_opportunities(chain, spot, vp, ticker,
     out["Spread (%)"]      = out["Spread (%)"].apply(lambda x: f"{x:.1f}%")
     out["IV (%)"]          = out["IV (%)"].apply(lambda x: f"{x:.1f}%")
     out["Expiración"]      = out["Expiración"].astype(str)
+    out["Muro GEX ($)"]   = out["Muro GEX ($)"].apply(lambda x: f"${x:.2f}" if pd.notna(x) else "N/D")
+    out["Dist. Muro (%)"] = out["Dist. Muro (%)"].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "N/D")
     return out.reset_index(drop=True)
 
 
@@ -657,7 +1134,6 @@ def metric_card(label, value, delta="", positive=True):
     )
 
 def price_card(spot, chg, pct):
-    """Tarjeta destacada para el precio actual + variación del día."""
     if chg is None:
         delta_html = ""
     else:
@@ -711,6 +1187,30 @@ def show_status_banner(yf_ok, demo_mode):
                     '✅ <b>Yahoo Finance</b> — Conectado (~15 min delay en sesión).</div>',
                     unsafe_allow_html=True)
 
+def show_walls_summary(walls_per_exp, spot):
+    """Tabla compacta de muros GEX por expiración en el encabezado del escáner."""
+    if not walls_per_exp: return
+    rows = []
+    for exp_str, w in sorted(walls_per_exp.items()):
+        cw = w.get("call_wall")
+        pw = w.get("put_wall")
+        rows.append({
+            "Expiración": exp_str,
+            "Call Wall ($)": f"${cw:.2f}" if cw else "N/D",
+            "Put Wall ($)":  f"${pw:.2f}" if pw else "N/D",
+            "Rango GEX": (
+                f"${pw:.2f} → ${cw:.2f}" if (cw and pw)
+                else ("Solo Call Wall" if cw else "Solo Put Wall" if pw else "Sin datos")
+            ),
+            "Spot en rango": (
+                "✅" if (cw and pw and pw <= spot <= cw)
+                else ("↑ Sobre Call Wall" if (cw and spot > cw)
+                      else ("↓ Bajo Put Wall" if (pw and spot < pw) else "—"))
+            ),
+        })
+    if rows:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
 
 # =============================================================================
 # BLOQUE 9 – APP PRINCIPAL
@@ -719,9 +1219,9 @@ def show_status_banner(yf_ok, demo_mode):
 def main():
     st.markdown("""
     <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.75rem;">
-      <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
-                 color:#f1f5f9;margin:0;letter-spacing:-0.03em;">GEX Wheel</h1>
-      <span style="font-family:'DM Mono',monospace;font-size:0.9rem;
+      <h1 style="font-family: var(--font-heading);font-size:2rem;font-weight:800;
+                 color:#f1f5f9;margin:0;letter-spacing:-0.03em;">GEX WHEEL</h1>
+      <span style="font-family: var(--font-data);font-size:0.9rem;
                    color:#93c5fd;letter-spacing:0.05em;">DASHBOARD</span>
     </div>
     """, unsafe_allow_html=True)
@@ -740,33 +1240,47 @@ def main():
 
         st.markdown("---")
         st.markdown('<div class="sidebar-header">🎯 Escáner</div>', unsafe_allow_html=True)
-        use_vp         = st.checkbox("Exigir Muro de Volumen (VP)", value=False)
+        wall_tol_pct   = st.slider("Tolerancia al Muro (%)", 1, 15, 5, 1,
+                                    help="Banda alrededor del muro GEX para filtrar contratos. "
+                                         "5% = acepta strikes dentro del 5% del Put/Call Wall.") / 100
         scan_max_delta = st.slider("Delta Abs. Máxima", 0.05, 0.50, 0.35, 0.01)
         scan_min_iv    = st.slider("IV Mínima (%)", 10, 200, 90, 5) / 100
         scan_min_oi    = st.number_input("OI Mínimo", min_value=0, value=500, step=10)
         scan_min_prem  = st.number_input("Prima Mínima ($)", min_value=0.01, value=0.90, step=0.05)
 
         st.markdown("---")
+        # FIX: botón separado del trigger por cambio de ticker
         load_btn = st.button("🔄 Cargar Datos", use_container_width=True)
 
     # ── Estado de sesión ─────────────────────────────────────────────────────
     defaults = dict(chain=pd.DataFrame(), hist=pd.DataFrame(), vp=pd.DataFrame(),
-                    spot=None, chg=None, pct=None,
-                    ticker="", loaded=False, demo_mode=False)
+                    pivot=pd.DataFrame(),
+                    spot=None, chg=None, pct=None, div_yield=0.0,
+                    ticker="", loaded=False, demo_mode=False,
+                    _loaded_min_dte=None, _loaded_max_dte=None)
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
 
+    # FIX: detectar cambio real de parámetros de carga (ticker, DTE)
+    # El cambio de slider DTE sin pulsar el botón NO recarga — requiere acción explícita.
+    needs_load = (
+        load_btn or
+        (ticker != st.session_state.ticker) or
+        not st.session_state.loaded
+    )
+
     # ── Carga ─────────────────────────────────────────────────────────────────
-    if load_btn or (ticker != st.session_state.ticker) or not st.session_state.loaded:
+    if needs_load:
         demo_mode = False
         with st.spinner(f"Descargando **{ticker}**…"):
-            spot = fetch_spot_price(ticker) if YF_AVAILABLE else None
+            spot      = fetch_spot_price(ticker) if YF_AVAILABLE else None
             _, chg, pct = fetch_day_change(ticker) if YF_AVAILABLE else (None, None, None)
+            div_yield = fetch_dividend_yield(ticker) if YF_AVAILABLE else 0.0
 
             if spot is None:
                 demo_mode = True
                 spot = {"IREN":12.5,"KEEL":4.8,"NBIS":22.3}.get(ticker, 50.0)
-                chg, pct = None, None
+                chg, pct, div_yield = None, None, 0.0
                 exp_d = [date.today()+timedelta(days=d)
                          for d in range(min_dte, max_dte+1)
                          if (date.today()+timedelta(days=d)).weekday()==4]
@@ -777,26 +1291,42 @@ def main():
                 chain = fetch_option_chain(ticker, min_dte, max_dte)
                 hist  = fetch_stock_history(ticker, vp_days)
                 if not chain.empty:
-                    with st.spinner("Calculando Griegas…"):
-                        chain = enrich_greeks(chain, spot)
+                    with st.spinner("Calculando Griegas (con dividendos)…"):
+                        chain = enrich_greeks(chain, spot, r=0.05, q=div_yield)
 
-        vp = compute_volume_profile(hist, n_bins=150) if not hist.empty else pd.DataFrame()
-        st.session_state.update(chain=chain, hist=hist, vp=vp,
-                                spot=spot, chg=chg, pct=pct,
-                                ticker=ticker, loaded=True, demo_mode=demo_mode)
+        vp    = compute_volume_profile(hist, n_bins=150) if not hist.empty else pd.DataFrame()
+        pivot = calculate_gex_heatmap(chain, spot) if not chain.empty else pd.DataFrame()
+
+        st.session_state.update(
+            chain=chain, hist=hist, vp=vp, pivot=pivot,
+            spot=spot, chg=chg, pct=pct, div_yield=div_yield,
+            ticker=ticker, loaded=True, demo_mode=demo_mode,
+            _loaded_min_dte=min_dte, _loaded_max_dte=max_dte,
+        )
 
     chain     = st.session_state.chain
     hist      = st.session_state.hist
     vp        = st.session_state.vp
+    pivot     = st.session_state.pivot
     spot      = st.session_state.spot
     chg       = st.session_state.chg
     pct       = st.session_state.pct
+    div_yield = st.session_state.div_yield
     demo_mode = st.session_state.demo_mode
 
     show_status_banner(YF_AVAILABLE, demo_mode)
     if not st.session_state.loaded or spot is None:
         st.info("Introduce un ticker y pulsa Cargar Datos.")
         return
+
+    # Avisar si los sliders DTE difieren de los datos cargados
+    if (st.session_state._loaded_min_dte != min_dte or
+            st.session_state._loaded_max_dte != max_dte):
+        st.markdown(
+            '<div class="warn-box">⚠️ Has cambiado el rango DTE. '
+            'Pulsa <b>🔄 Cargar Datos</b> para actualizar la cadena de opciones.</div>',
+            unsafe_allow_html=True,
+        )
 
     # ── Rango de strikes ──────────────────────────────────────────────────────
     strike_lo    = spot * (1 - strike_pct/100)
@@ -826,6 +1356,15 @@ def main():
     with col6:
         zero_gamma_card(zero_gamma, spot)
 
+    # Dividendo en cabecera si es relevante
+    if div_yield > 0:
+        st.markdown(
+            f'<div class="info-box" style="margin:0.3rem 0 0.5rem 0; padding:0.4rem 1rem;">'
+            f'📌 <b>Dividend Yield:</b> {div_yield*100:.2f}% — '
+            f'incluido en el cálculo de griegas (modelo Merton).</div>',
+            unsafe_allow_html=True,
+        )
+
     st.markdown("---")
 
     # ── Tabs ──────────────────────────────────────────────────────────────────
@@ -849,9 +1388,9 @@ def main():
         """, unsafe_allow_html=True)
 
         if not chain_f.empty:
-            pivot = calculate_gex_heatmap(chain_f, spot)
-            if not pivot.empty:
-                st.plotly_chart(plot_gex_heatmap(pivot.iloc[:, :n_exp_heatmap], spot),
+            pivot_f = calculate_gex_heatmap(chain_f, spot)
+            if not pivot_f.empty:
+                st.plotly_chart(plot_gex_heatmap(pivot_f.iloc[:, :n_exp_heatmap], spot),
                                 use_container_width=True)
 
             st.markdown('<div class="section-title">GEX Neto por Strike</div>', unsafe_allow_html=True)
@@ -902,46 +1441,62 @@ def main():
     with tab_wheel:
         st.markdown("""
         <div class="info-box">
-            <strong>🎯 Cómo usar el Escáner Wheel:</strong><br>
-            • <strong>Venta de Puts (CSP):</strong> Strikes por debajo del precio. Cobras la prima asumiendo comprar la acción más barata si cae.<br>
-            • <strong>Covered Calls (CC):</strong> Strikes por encima. Cobras por vender tus acciones a mayor precio.<br>
-            • <strong>Delta:</strong> Probabilidad de asignación. <strong>Theta/día:</strong> $ que ganas cada día por decaimiento.
+            <strong>🎯 Cómo usa el escáner los muros GEX:</strong><br>
+            • <strong>CSP (Venta Put):</strong> Busca strikes cercanos <em>por encima</em> del <strong>Put Wall</strong> de ese vencimiento.
+              El Put Wall es donde los MM compran para defender el nivel — vendes la put justo ahí, con soporte institucional real.<br>
+            • <strong>Covered Call (CC):</strong> Busca strikes cercanos <em>por debajo</em> del <strong>Call Wall</strong>.
+              El Call Wall es el techo donde los MM venden — vendes la call donde la resistencia es más firme.<br>
+            • <strong>Tolerancia al Muro (%):</strong> Ajusta la banda de búsqueda alrededor del muro en el sidebar.<br>
+            • <strong>Dist. Muro (%):</strong> Cuanto más cerca de 0%, más preciso el alineamiento con el muro.
         </div>
         """, unsafe_allow_html=True)
 
+        # Tabla resumen de muros por expiración
+        walls_per_exp = get_walls_per_expiration(pivot) if not pivot.empty else {}
+        if walls_per_exp:
+            st.markdown('<div class="section-title">📍 Muros GEX por Expiración</div>',
+                        unsafe_allow_html=True)
+            show_walls_summary(walls_per_exp, spot)
+
         res = scan_wheel_opportunities(
-            chain=st.session_state.chain, spot=spot, vp=vp, ticker=ticker,
+            chain=st.session_state.chain, spot=spot, pivot=pivot, ticker=ticker,
             min_iv=scan_min_iv, min_oi=scan_min_oi, min_prem=scan_min_prem,
-            min_dte=min_dte, max_dte=max_dte, max_delta=scan_max_delta, use_vp=use_vp,
+            min_dte=min_dte, max_dte=max_dte, max_delta=scan_max_delta,
+            wall_tol_pct=wall_tol_pct,
         )
 
         if not res.empty:
             csp_res = res[res["Estrategia"]=="Venta Put (CSP)"]
             cc_res  = res[res["Estrategia"]=="Covered Call (CC)"]
 
-            # Altura de tabla fija igual para ambas (basada en la más larga → puts)
-            n_rows    = max(len(csp_res), len(cc_res), 1)
-            row_h     = 35
-            header_h  = 38
-            tbl_h     = min(header_h + n_rows * row_h, 600)
+            n_rows   = max(len(csp_res), len(cc_res), 1)
+            row_h    = 35
+            header_h = 38
+            tbl_h    = min(header_h + n_rows * row_h, 600)
 
-            drop_cols = ["Ticker","Estrategia"]
+            # Columnas a mostrar — incluye las nuevas de muro
+            show_cols = ["Strike","Expiración","DTE","Tipo",
+                         "Bid","Ask","Mid","Delta","Theta/día","IV (%)",
+                         "OI","Yield Anual (%)","Spread (%)",
+                         "Muro GEX ($)","Tipo Muro","Dist. Muro (%)"]
 
             st.markdown(f'<div class="section-title">🔻 Ventas de Put — CSP ({len(csp_res)} contratos)</div>',
                         unsafe_allow_html=True)
             if not csp_res.empty:
-                st.dataframe(csp_res.drop(columns=drop_cols, errors="ignore"),
+                st.dataframe(csp_res[show_cols],
                              use_container_width=True, hide_index=True, height=tbl_h)
             else:
-                st.info("Sin puts que cumplan los criterios.")
+                st.info("Sin puts cerca de Put Walls con los criterios actuales. "
+                        "Aumenta la Tolerancia al Muro o reduce Prima/OI mínimos.")
 
             st.markdown(f'<div class="section-title">🔺 Covered Calls — CC ({len(cc_res)} contratos)</div>',
                         unsafe_allow_html=True)
             if not cc_res.empty:
-                st.dataframe(cc_res.drop(columns=drop_cols, errors="ignore"),
+                st.dataframe(cc_res[show_cols],
                              use_container_width=True, hide_index=True, height=tbl_h)
             else:
-                st.info("Sin calls que cumplan los criterios.")
+                st.info("Sin calls cerca de Call Walls con los criterios actuales. "
+                        "Aumenta la Tolerancia al Muro o reduce Prima/OI mínimos.")
 
             try:
                 best_yield = res["Yield Anual (%)"].str.replace("%","",regex=False).astype(float).max()
@@ -949,15 +1504,16 @@ def main():
                 best_yield = float("nan")
 
             st.markdown("---")
-            m1, m2, m3 = st.columns(3)
+            m1, m2, m3, m4 = st.columns(4)
             with m1: metric_card("Oportunidades CSP", str(len(csp_res)), positive=True)
             with m2: metric_card("Oportunidades CC",  str(len(cc_res)),  positive=True)
             with m3: metric_card("Mejor Yield Anual",
                                  f"{best_yield:.1f}%" if not np.isnan(best_yield) else "N/D",
                                  positive=True)
+            with m4: metric_card("Tolerancia Muro",   f"±{wall_tol_pct*100:.0f}%", positive=True)
         else:
-            st.info("Ningún contrato cumple los criterios. "
-                    "Reduce Prima mínima / OI mínimo o desactiva el filtro VP.")
+            st.info("Ningún contrato cerca de muros GEX con los criterios actuales. "
+                    "Aumenta la Tolerancia al Muro (sidebar) o reduce Prima/OI mínimos.")
 
         st.markdown("""
         <div class="warn-box">
@@ -969,8 +1525,8 @@ def main():
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        f'<div style="text-align:center;color:#334155;font-size:0.7rem;font-family:DM Mono,monospace;">'
-        f'GEX Wheel Dashboard · Yahoo Finance · Streamlit · '
+        f'<div style="text-align:center;color:#334155;font-size:0.7rem;font-family: var(--font-data);">'
+        f'GEX Wheel · CarlosCano93 · Yahoo Finance · Streamlit · '
         f'{datetime.now().strftime("%Y-%m-%d %H:%M")}'
         f'{"  ·  MODO DEMO" if demo_mode else ""}'
         f'</div>',
