@@ -515,7 +515,7 @@ def _plotly_theme():
 # BLOQUE 1 – EXTRACCIÓN DE DATOS
 # =============================================================================
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_spot_price(ticker):
     if not YF_AVAILABLE: return None
     try:
@@ -529,7 +529,7 @@ def fetch_spot_price(ticker):
         return None
     except Exception: return None
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_day_change(ticker):
     if not YF_AVAILABLE: return None, None, None
     try:
@@ -544,7 +544,7 @@ def fetch_day_change(ticker):
     except Exception: return None, None, None
 
 # FIX: min_dte y max_dte forman parte de la cache key para evitar datos rangeados incorrectos
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_option_chain(ticker, min_dte, max_dte):
     if not YF_AVAILABLE: return pd.DataFrame()
     today = date.today()
@@ -592,7 +592,7 @@ def fetch_option_chain(ticker, min_dte, max_dte):
     out.dropna(subset=["strike"], inplace=True)
     return out.sort_values(["expiration","right","strike"]).reset_index(drop=True)
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_dividend_yield(ticker):
     """Obtiene el dividend yield anual del ticker para usarlo en BSM."""
     if not YF_AVAILABLE: return 0.0
@@ -603,7 +603,7 @@ def fetch_dividend_yield(ticker):
         return float(dy)
     except Exception: return 0.0
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_stock_history(ticker, days=365):
     if not YF_AVAILABLE: return pd.DataFrame()
     try:
