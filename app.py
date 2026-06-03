@@ -1236,7 +1236,7 @@ def main():
         with c2: max_dte = st.number_input("DTE Máx.", min_value=7,  max_value=365, value=30, step=1)
         strike_pct    = st.slider("Strikes ± % spot", 5, 40, 20, 1)
         vp_days       = st.slider("Días Histórico (VP)", 30, 730, 365, 30)
-        n_exp_heatmap = st.slider("Expiraciones en Heatmap", 2, 12, 5, 1)
+        n_exp_heatmap = st.slider("Expiraciones en Heatmap", 0, 12, 5, 1)
 
         st.markdown("---")
         st.markdown('<div class="sidebar-header">🎯 Escáner</div>', unsafe_allow_html=True)
